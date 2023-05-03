@@ -19,6 +19,11 @@ import by.sva.restApi.entity.Employee;
 import by.sva.restApi.exception.EmployeeNotFoundException;
 import by.sva.restApi.repository.EmployeeRepository;
 import by.sva.restApi.util.EmployeeModelAssembler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 // для вызова статического метода methodOn
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
@@ -35,6 +40,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
  */
 
 @RestController
+//@Api(description = "Employee controller whith link generator")
+@Tag(name = "Employee controller", description = "Контроллер запросов по персоналу")
 public class EmployeeController {
 	
 	private final EmployeeModelAssembler assembler;
@@ -47,11 +54,15 @@ public class EmployeeController {
 	
 	
 	@GetMapping("/employees/get")
+//	@ApiOperation("Get all elements")
+	@Operation(summary = "Get list of employees", description = "Получить список сотрудников")
 	public List<Employee> get(){
 		return repository.findAll();
 	}
 	
 	@GetMapping("/employees")
+//	@ApiOperation("Get all elements whith links")
+	@Operation(summary = "Get list of employees with links", description = "Получить список сотрудников со ссылками")
 	public CollectionModel<EntityModel<Employee>> getAll() {
 		List<EntityModel<Employee>> employees = repository.findAll().stream()
 				.map(employee -> EntityModel.of(employee,
@@ -63,6 +74,8 @@ public class EmployeeController {
 	}
 	
 	@PostMapping("/employees")
+//	@ApiOperation("Add new element")
+	@Operation(summary = "Add new Employee", description = "Добавить нового сотрудника")
 	public Employee newEmployee(@RequestBody Employee newEmployee) {
 		return repository.save(newEmployee);
 	}
@@ -74,7 +87,9 @@ public class EmployeeController {
 	}
 	*/
 	@GetMapping("/employees/{id}")
-	public EntityModel<Employee> getOne(@PathVariable Long id) {
+//	@ApiOperation("Get element by id whith links")
+	@Operation(summary = "Get an employee by Id with links", description = "Получить сотрудника по Id со ссылками")
+	public EntityModel<Employee> getOne(@PathVariable @Parameter(description = "Идентификатор пользователя") Long id) {
 		Employee employee = repository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
 		/*// это полный код для добавления ссылок
@@ -86,7 +101,10 @@ public class EmployeeController {
 	}
 	
 	@PutMapping("/employees/{id}")
-	public Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+//	@ApiOperation("Edit element by id")
+	@Operation(summary = "Update an employee's data by Id", description = "Изменить данные сотрудника по Id")
+	public Employee replaceEmployee(@RequestBody @Parameter(description = "Данные пользователя") Employee newEmployee
+								, @PathVariable @Parameter(description = "Идентификатор пользователя") Long id) {
 		return repository.findById(id).map(employee -> {employee.setName(newEmployee.getName());
 														employee.setRole(newEmployee.getRole());
 														return repository.save(employee);
@@ -97,7 +115,9 @@ public class EmployeeController {
 	}
 	
 	@DeleteMapping("/employees/{id}")
-	public CollectionModel<EntityModel<Employee>> deleteEmployee(@PathVariable Long id) {
+//	@ApiOperation("Remove element by id")
+	@Operation(summary = "Remove an employee by Id", description = "Удалить сотрудника по Id")
+	public CollectionModel<EntityModel<Employee>> deleteEmployee(@PathVariable @Parameter(description = "Идентификатор пользователя") Long id) {
 		Employee employee = repository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 		repository.deleteById(id);
 		return getAll();

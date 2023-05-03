@@ -6,15 +6,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 //слово order может быть зарезервированным в СУДБ, поэтому меняем имя таблицы
 @Table(name = "orders")
 public class Order {
+	@Schema(accessMode = Schema.AccessMode.READ_ONLY) // скрыть поле
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Schema(description = "Предмет заказа", example = "Samsung S22")
 	private String description;
+	@Schema(accessMode = Schema.AccessMode.READ_ONLY) // скрыть поле
 	private Status status;
 	
 	public Order() {}

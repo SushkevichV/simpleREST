@@ -23,7 +23,7 @@ public class Config {
 			log.info("Preloading " + employeeRepository.save(new Employee("Frodo Baggins", "theif")));
 			
 			orderRepository.save(new Order("MacBook Pro", Status.COMPLETED));
-			orderRepository.save(new Order("iPhone", Status.IN_PROGRSS));
+			orderRepository.save(new Order("iPhone", Status.IN_PROGRESS));
 			orderRepository.findAll().forEach(order -> {
 				log.info("Preloaded" + order);
 			});

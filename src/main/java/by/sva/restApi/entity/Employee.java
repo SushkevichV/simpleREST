@@ -5,13 +5,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Сущность: сотрудник")
 @Entity
 public class Employee {
+	@Schema(accessMode = Schema.AccessMode.READ_ONLY) // скрыть поле
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Schema(description = "Имя", example = "Frodo Baggins")
 	private String name;
+	@Schema(description = "Роль", example = "Victim")
 	private String role;
 	
 	public Employee() {

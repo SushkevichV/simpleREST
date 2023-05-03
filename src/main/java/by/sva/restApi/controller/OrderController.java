@@ -23,11 +23,15 @@ import by.sva.restApi.entity.Status;
 import by.sva.restApi.exception.OrderNotFoundException;
 import by.sva.restApi.repository.OrderRepository;
 import by.sva.restApi.util.OrderModelAssembler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 //для реализации статического метода methodOn
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
+@Tag(name = "Order controller", description = "Контроллер запросов по заказам")
 public class OrderController {
 	private final OrderRepository repository;
 	private final OrderModelAssembler assembler;
@@ -38,6 +42,7 @@ public class OrderController {
 	}
 	
 	@GetMapping("/orders")
+	@Operation(summary = "Get list of orders", description = "Получить список заказов")
 	public CollectionModel<EntityModel<Order>> getAll(){
 		List<EntityModel<Order>> orders = repository.findAll().stream()
 				.map(assembler::toModel)
@@ -47,15 +52,17 @@ public class OrderController {
 	}
 
 	@GetMapping("/orders/{id}")
-	public EntityModel<Order> getOne(@PathVariable Long id) {
+	@Operation(summary = "Get order by Id", description = "Получить данные заказа по Id")
+	public EntityModel<Order> getOne(@PathVariable @Parameter(description = "Идентификатор заказа") Long id) {
 		Order order = repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 		
 		return assembler.toModel(order);
 	}
 	
 	@PostMapping("/orders")
+	@Operation(summary = "New order", description = "Создать новый заказ")
 	public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order){
-		order.setStatus(Status.IN_PROGRSS);
+		order.setStatus(Status.IN_PROGRESS);
 		Order newOrder = repository.save(order);
 		
 		return ResponseEntity.created(linkTo(methodOn(OrderController.class).getOne(newOrder.getId()))
@@ -63,10 +70,11 @@ public class OrderController {
 	}
 
 	@DeleteMapping("/orders/{id}/cancel")
-	public ResponseEntity<?> cancel(@PathVariable Long id) {
+	@Operation(summary = "Cancel order by Id", description = "Изменить статус заказа на Cancelled")
+	public ResponseEntity<?> cancel(@PathVariable @Parameter(description = "Идентификатор заказа") Long id) {
 		Order order = repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 		
-		if(order.getStatus() == Status.IN_PROGRSS) {
+		if(order.getStatus() == Status.IN_PROGRESS) {
 			order.setStatus(Status.CANCELLED);
 			return ResponseEntity.ok(assembler.toModel(repository.save(order)));
 		}
@@ -79,10 +87,11 @@ public class OrderController {
 	}
 
 	@PutMapping("/orders/{id}/complete")
-	public ResponseEntity<?> complete(@PathVariable Long id) {
+	@Operation(summary = "Complete order", description = "Изменить статус заказа на Completed")
+	public ResponseEntity<?> complete(@PathVariable @Parameter(description = "Идентификатор заказа") Long id) {
 		Order order = repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 		
-		if(order.getStatus() == Status.IN_PROGRSS) {
+		if(order.getStatus() == Status.IN_PROGRESS) {
 			order.setStatus(Status.COMPLETED);
 			return ResponseEntity.ok(assembler.toModel(repository.save(order)));
 		}
